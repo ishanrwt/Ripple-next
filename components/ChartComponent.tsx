@@ -1,13 +1,15 @@
 'use client'
 
-import React, { useEffect, useRef } from 'react'
-import { Line } from 'react-chartjs-2'
+import React from 'react'
+import { Line, Bar, Pie } from 'react-chartjs-2'
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
+  ArcElement,
   Title,
   Tooltip,
   Legend,
@@ -18,6 +20,8 @@ ChartJS.register(
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
+  ArcElement,
   Title,
   Tooltip,
   Legend
@@ -25,41 +29,45 @@ ChartJS.register(
 
 interface ChartComponentProps {
   data: {
+    type: 'line' | 'bar' | 'pie'
     labels: string[]
-    datasets: Array<{
-      label: string
-      data: number[]
-      borderColor: string
-      backgroundColor: string
-      tension: number
-    }>
+    datasets: Array<any>
   }
 }
 
 const ChartComponent: React.FC<ChartComponentProps> = ({ data }) => {
-  // Safe guard: Handle undefined or invalid data to prevent .map() on undefined
-  if (!data || !data.datasets || !Array.isArray(data.datasets) || data.datasets.length === 0) {
-    return <div className="bg-white p-4 rounded-lg shadow-md mt-2 dark:bg-gray-800">No data available for chart.</div>;
+  if (!data || !data.datasets || data.datasets.length === 0) {
+    return (
+      <div className="bg-white p-4 rounded-lg shadow-md mt-2 dark:bg-gray-800">
+        No data available for chart.
+      </div>
+    )
   }
 
   const options = {
     responsive: true,
     plugins: {
-      legend: {
-        position: 'top' as const,
-      },
+      legend: { position: 'top' as const },
       title: {
         display: true,
-        text: 'Groundwater Level Trend',
+        text:
+          data.type === 'line'
+            ? 'Groundwater Level Trend'
+            : data.type === 'bar'
+            ? 'Bar Chart Visualization'
+            : 'Pie Chart Visualization',
       },
     },
   }
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md mt-2 dark:bg-gray-800">
-      <Line data={data} options={options} />
+      {data.type === 'line' && <Line data={data} options={options} />}
+      {data.type === 'bar' && <Bar data={data} options={options} />}
+      {data.type === 'pie' && <Pie data={data} options={options} />}
     </div>
   )
 }
+
 
 export default ChartComponent
